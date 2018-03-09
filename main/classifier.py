@@ -1,10 +1,10 @@
-from model import train as conv_nn_train
-from model import predict as conv_nn_predict
+from model import Model
 import theano
 from theano import tensor as T
 from scipy.misc import toimage
 from scipy.optimize import fmin_cg as conjugate_gradient
 import numpy as np
+import pickle
 
 class Classifier(object):
 
@@ -15,11 +15,12 @@ class Classifier(object):
         self.learning_rate = 0.16
         self.eps = 2e-9
         self.params = {}
+        self.model = Model()
 
     def error(self, Y_actual, Y_output):
         Y = Y_actual - Y_output
-        print(Y.shape)
-        error = (1/2)*(T.transpose(Y)*Y)
+        error = (1/Y.shape[0])*np.sum(Y*Y.T)
+        print(error.shape)
         return error
 
     def compute_gradients(self, cost, parameters):
@@ -38,7 +39,7 @@ class Classifier(object):
     def train(self):
         parameters = None
         for i in range(len(self.train_x)):
-            cost = conv_nn_train([self.train_x[i]],[self.train_y[i]])
+            cost = self.model.train([self.train_x[i]],[self.train_y[i]])
             if i%100 == 0:
                 print(str(i)+" datas trained")
         self.params = parameters
@@ -48,13 +49,11 @@ class Classifier(object):
         Y_predict = list()
         if parameters != None:
             self.params = parameters
-        for x in self.test_x:
-            y_predict = conv_nn_predict([x],self.params)
-            print('hello')
-            print(y_predict)
-            Y_predict.append(y_predict)
+        for x in self.test_x[:100]:
+            y_predict = self.model.predict([x])
+            Y_predict.append(np.asscalar(y_predict))
         Y_predict = np.asarray(Y_predict)
-        error = self.error(self.test_y,Y_predict)
+        error = self.error(self.test_y[:100],Y_predict)
         return error
 
     def cost_function(self, y_predict, y_label):

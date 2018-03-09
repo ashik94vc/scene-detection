@@ -6,6 +6,23 @@ import numpy as np
 import re
 from math import floor
 import sys
+from model import Model
+
+def quantizer(value):
+    if value > 0.5:
+        return 1
+    return 0
+
+def confidence(value):
+    if value > 0.5:
+        return value*100
+    return (1.0-value)*100
+
+def num_to_label(input_value):
+    if input_value > 0.5:
+        return "a car!"
+    else:
+        return "not a car!"
 
 #build data for cars
 regex = re.compile("^cars_[0-9]{5}\.jpg$")
@@ -44,5 +61,17 @@ parameters = None
 if len(sys.argv) < 2:
     classifier.train()
 else:
-    parameters = np.load(sys.argv[1])
-error = classifier.test()
+    parameters = np.load(sys.argv[1],allow_pickle=True)
+    print(type(parameters))
+    print(parameters.shape)
+    classifier.model = Model(parameters)
+if sys.argv[2] != None:
+    predict_input = (np.asarray(Image.open(open(sys.argv[2], 'rb')),dtype="float64")/256).transpose(2,0,1)
+    y_output = Model(parameters)
+    y_output_scalar = np.asscalar(y_output)
+    print(y_output_scalar)
+    string_output = "I am {:.3f}% sure that it's a ".format(confidence(y_output_scalar))
+    print(string_output+num_to_label(y_output_scalar))
+else:
+    error = classifier.test()
+    print(error)
