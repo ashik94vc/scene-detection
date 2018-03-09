@@ -1,9 +1,11 @@
-from model import model as conv_nn
+from model import train as conv_nn_train
+from model import predict as conv_nn_predict
 import theano
 from theano import tensor as T
 from model import model
 from scipy.misc import toimage
 from scipy.optimize import fmin_cg as conjugate_gradient
+import numpy as np
 
 class Classifier(object):
 
@@ -19,7 +21,7 @@ class Classifier(object):
         error = (1/2)*(T.transpose(Y)*Y)
         return error
 
-    def compute_gradients(cost, parameters):
+    def compute_gradients(self, cost, parameters):
         grads = {}
         grads["dW1"] = T.grad(cost,parameters["W1"])
         grads["db1"] = T.grad(cost,parameters["b1"])
@@ -32,71 +34,72 @@ class Classifier(object):
 
         return grads
 
-    def train():
-        train_y = self.train_y.iter()
+    def train(self):
         parameters = None
-        for x in self.train_x:
-            y_predict,parameters = conv_nn(x,parameters)
-            cost = -cost_function(y_predict,train_y.next())
-            grads = compute_gradients(cost,grads)
+        for i in range(len(self.train_x)):
+            cost,parameters,grads = conv_nn(self.train_x[i].reshape(1,3,150,150),y_label=self.train_y[i],parameters=parameters)
+            # grads = self.compute_gradients(np.asscalar(cost),parameters)
             iterations = 0
-            while np.linalg.norm(grads["W1"])**2 > eps:
-                parameters["W1"] = parameters["W1"] - self.learning_rate*grads["W1"]
+            while np.linalg.norm(grads["dW1"])**2 > self.eps:
+                parameters["W1"] = parameters["W1"] - self.learning_rate*grads["dW1"]
+                print(updated)
                 iterations += 1
                 if iterations >= 1000:
                     break
             iterations = 0
-            while np.linalg.norm(grads["b1"])**2 > eps:
-                parameters["b1"] = parameters["b1"] - self.learning_rate*grads["b1"]
+            while np.linalg.norm(grads["db1"])**2 > self.eps:
+                parameters["b1"] = parameters["b1"] - self.learning_rate*grads["db1"]
                 iterations += 1
                 if iterations >= 1000:
                     break
             iterations = 0
-            while np.linalg.norm(grads["W2"])**2 > eps:
-                parameters["W2"] = parameters["W2"] - self.learning_rate*grads["W2"]
+            while np.linalg.norm(grads["dW2"])**2 > self.eps:
+                parameters["W2"] = parameters["W2"] - self.learning_rate*grads["dW2"]
                 iterations += 1
                 if iterations >= 1000:
                     break
             iterations = 0
-            while np.linalg.norm(grads["b2"])**2 > eps:
-                parameters["b2"] = parameters["b2"] - self.learning_rate*grads["b2"]
+            while np.linalg.norm(grads["db2"])**2 > self.eps:
+                parameters["b2"] = parameters["b2"] - self.learning_rate*grads["db2"]
                 iterations += 1
                 if iterations >= 1000:
                     break
             iterations = 0
-            while np.linalg.norm(grads["W3"])**2 > eps:
-                parameters["W3"] = parameters["W3"] - self.learning_rate*grads["W3"]
+            while np.linalg.norm(grads["dW3"])**2 > self.eps:
+                parameters["W3"] = parameters["W3"] - self.learning_rate*grads["dW3"]
                 iterations += 1
                 if iterations >= 1000:
                     break
             iterations = 0
-            while np.linalg.norm(grads["b3"])**2 > eps:
-                parameters["b3"] = parameters["b3"] - self.learning_rate*grads["b3"]
+            while np.linalg.norm(grads["db3"])**2 > self.eps:
+                parameters["b3"] = parameters["b3"] - self.learning_rate*grads["db3"]
                 iterations += 1
                 if iterations >= 1000:
                     break
             iterations = 0
-            while np.linalg.norm(grads["W5"])**2 > eps:
-                parameters["W5"] = parameters["W5"] - self.learning_rate*grads["W5"]
+            while np.linalg.norm(grads["dW5"])**2 > self.eps:
+                parameters["W5"] = parameters["W5"] - self.learning_rate*grads["dW5"]
                 iterations += 1
                 if iterations >= 1000:
                     break
+            print(iterations)
             iterations = 0
-            while np.linalg.norm(grads["W6"])**2 > eps:
-                parameters["W6"] = parameters["W6"] - self.learning_rate*grads["W6"]
+            while np.linalg.norm(grads["dW6"])**2 > self.eps:
+                parameters["W6"] = parameters["W6"] - self.learning_rate*grads["dW6"]
                 iterations += 1
                 if iterations >= 1000:
                     break
-        return parameters
+            print(i)
+        self.params = parameters
 
-    def test(parameters):
+    def test(self):
         Y_predict = list()
         for x in self.test_x:
-            y_predict,parameters = conv_nn(x,parameters)
+            y_predict = conv_nn(x,self.params)
             Y_predict.append(y_predict)
         Y_predict = np.matrix(Y_predict)
         error = self.error(self.test_y,Y_predict)
         return error
 
-    def cost_function(y_predict, y_label):
-        return y_label*np.log(y_predict) + (1-y_label)*np.log(1-a)
+    def cost_function(self, y_predict, y_label):
+        return y_label*np.log(y_predict) + (1-y_label)*np.log(1-y_predict)
