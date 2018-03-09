@@ -5,6 +5,7 @@ import os
 import numpy as np
 import re
 from math import floor
+import sys
 
 #build data for cars
 regex = re.compile("^cars_[0-9]{5}\.jpg$")
@@ -31,13 +32,17 @@ size_d = len(dataset_temp)
 train_size = size_d*0.7
 test_size = 0.3*size_d
 train_index = floor(train_size)
-test_index = size_d - train_index
 train_set = dataset_temp[0:train_index]
-test_set = dataset_temp[train_index+1:test_index]
+test_set = dataset_temp[train_index+1:size_d]
 train_inputs,train_labels = np.asarray([train[0] for train in train_set]),np.asarray([train[1] for train in train_set])
 test_inputs,test_labels = np.asarray([test[0] for test in test_set]),np.asarray([test[1] for test in test_set])
 dataset.append((train_inputs,train_labels))
 dataset.append((test_inputs,test_labels))
 classifier = Classifier(dataset)
-classifier.train()
+parameters = None
+
+if len(sys.argv) < 2:
+    classifier.train()
+else:
+    parameters = np.load(sys.argv[1])
 error = classifier.test()

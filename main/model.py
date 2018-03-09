@@ -19,7 +19,7 @@ def RMSprop(cost, parameters, learning_rate=0.011, rho=0.8, epsilon=1e-6):
     return updates
 
 __X = tensor.tensor4()
-Y = tensor.matrix()
+Y = tensor.vector()
 __W1 = theano.shared(np.random.randn(6,3,9,9))
 __b1 = theano.shared(np.zeros(6,).astype(theano.config.floatX))
 __W2 = theano.shared(np.random.randn(32,6,9,9))
@@ -50,6 +50,7 @@ __W6 = theano.shared(np.random.randn(84,1))
 #     __b3 = parameters["b3"]
 #     __W5 = parameters["W5"]
 #     __W6 = parameters["W6"]
+
 
 __layer_1 = conv2d(__X,__W1)
 __layer_1_pool = pool_2d(__layer_1,(2,2),ignore_border=True)
@@ -91,4 +92,4 @@ parameters = [__W1,__b1,__W2,__b2,__W3,__b3,__W5,__W6]
 updates = RMSprop(cost,parameters)
 
 train = theano.function([__X, Y], cost,updates=updates)
-predict = theano.function([__X],__layer_6_output)
+predict = theano.function([__X, params],__layer_6_output)
