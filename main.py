@@ -1,12 +1,18 @@
-from classifier import Classifier
-from PIL import Image
-from scipy.misc import toimage
 import os
-import numpy as np
 import re
-from math import floor
 import sys
-from model import Model
+import warnings
+import numpy as np
+
+from PIL import Image
+from math import floor
+from scipy.misc import toimage
+
+from core.lib import loadModel
+from core.classifier import Classifier
+from core.model import Model
+
+
 
 def quantizer(value):
     if value > 0.5:
@@ -27,18 +33,18 @@ def num_to_label(input_value):
 #build data for cars
 regex = re.compile("^cars_[0-9]{5}\.jpg$")
 dataset_temp = list()
-for filename in os.listdir('../dataset/cars'):
+for filename in os.listdir('dataset/cars'):
     if regex.match(filename):
-        file_data = Image.open(open(os.path.join('../dataset/cars',filename),'rb'))
+        file_data = Image.open(open(os.path.join('dataset/cars',filename),'rb'))
         img = np.asarray(file_data, dtype='float64')/256
         img = img.transpose(2,0,1)
         dataset_temp.append([img,1])
 #build data for not cars_
 regex = re.compile("^notcars_[0-9]{5}\.jpg$")
 nocars_list = list()
-for filename in os.listdir('../dataset/not_cars'):
+for filename in os.listdir('dataset/not_cars'):
     if regex.match(filename):
-        file_data = Image.open(open(os.path.join('../dataset/not_cars',filename),'rb'))
+        file_data = Image.open(open(os.path.join('dataset/not_cars',filename),'rb'))
         img = np.asarray(file_data, dtype='float64')/256
         img = img.transpose(2,0,1)
         dataset_temp.append([img,0])
@@ -61,7 +67,7 @@ parameters = None
 if len(sys.argv) < 2:
     classifier.train()
 else:
-    parameters = np.load(sys.argv[1],allow_pickle=True)
+    parameters = loadModel(sys.argv[1])
     print(type(parameters))
     print(parameters.shape)
     classifier.model = Model(parameters)

@@ -1,8 +1,10 @@
-from model import Model
+import os
+from core.model import Model
 import theano
 from theano import tensor as T
 from scipy.misc import toimage
 from scipy.optimize import fmin_cg as conjugate_gradient
+from core.lib import saveModel
 import numpy as np
 import pickle
 
@@ -43,7 +45,8 @@ class Classifier(object):
             if i%100 == 0:
                 print(str(i)+" datas trained")
         self.params = parameters
-        np.save('train_file.model',parameters)
+        saveModel(parameters)
+
 
     def test(self, parameters = None):
         Y_predict = list()
