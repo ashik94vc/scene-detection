@@ -21,8 +21,8 @@ class Classifier(object):
 
     def error(self, Y_actual, Y_output):
         Y = Y_actual - Y_output
+        print(Y)
         error = (1/Y.shape[0])*np.sum(Y*Y.T)
-        print(error.shape)
         return error
 
     def compute_gradients(self, cost, parameters):
@@ -44,6 +44,7 @@ class Classifier(object):
             cost = self.model.train([self.train_x[i]],[self.train_y[i]])
             if i%100 == 0:
                 print(str(i)+" datas trained")
+                print(cost)
         self.params = self.model.parameters()
         saveModel(self.params)
 
@@ -52,11 +53,11 @@ class Classifier(object):
         Y_predict = list()
         if parameters != None:
             self.params = parameters
-        for x in self.test_x[:100]:
+        for x in self.test_x:
             y_predict = self.model.predict([x])
             Y_predict.append(np.asscalar(y_predict))
         Y_predict = np.asarray(Y_predict)
-        error = self.error(self.test_y[:100],Y_predict)
+        error = self.error(self.test_y,Y_predict)
         return error
 
     def cost_function(self, y_predict, y_label):

@@ -35,15 +35,15 @@ class Model(object):
 
         layer_1 = conv2d(X,W1)
         layer_1_pool = pool_2d(layer_1,(2,2),ignore_border=True)
-        layer_1_output = tensor.tanh(layer_1_pool+b1.dimshuffle('x', 0, 'x', 'x'))
+        layer_1_output = relu(layer_1_pool+b1.dimshuffle('x', 0, 'x', 'x'))
 
         layer_2 = conv2d(layer_1_output, W2)
         layer_2_pool = pool_2d(layer_2,(2,2),ignore_border=True)
-        layer_2_output = tensor.tanh(layer_2_pool+b2.dimshuffle('x', 0, 'x', 'x'))
+        layer_2_output = relu(layer_2_pool+b2.dimshuffle('x', 0, 'x', 'x'))
 
         layer_3 = conv2d(layer_2_output, W3)
         layer_3_pool = pool_2d(layer_3,(2,2),ignore_border=True)
-        layer_3_output = tensor.tanh(layer_3_pool+b3.dimshuffle('x', 0, 'x', 'x'))
+        layer_3_output = relu(layer_3_pool+b3.dimshuffle('x', 0, 'x', 'x'))
 
         layer_4 = layer_3_output.flatten(2)
 
@@ -53,25 +53,25 @@ class Model(object):
         layer_6 = tensor.dot(layer_5_output, W6)
         layer_6_output = sigmoid(layer_6)
 
-        cost = -(Y*np.log(layer_6_output) + (1-Y)*np.log(1-layer_6_output)).sum()
+        cost = ((Y-layer_6_output)**2).sum()
 
         parameters = [W1,b1,W2,b2,W3,b3,W5,W6]
 
-        updates = self.RMSprop(cost,parameters)
+        updates = self.GradientDescent(cost,parameters)
 
         params = {"W1": W1, "b1": b1, "W2": W2, "b2": b2, "W3": W3, "b3": b3, "W5": W5, "W6": W6}
         self.parameters = theano.function([],params)
         self.train = theano.function([X, Y], cost,updates=updates)
         self.predict = theano.function([X],layer_6_output)
 
-    def RMSprop(self, cost, parameters, learning_rate=0.011, rho=0.8, epsilon=1e-6):
+    def GradientDescent(self, cost, parameters, learning_rate=0.011, rho=0.8, epsilon=1e-6):
         gradients = tensor.grad(cost, parameters)
         updates = []
         for param, grad in zip(parameters, gradients):
-            acc = theano.shared(param.get_value() * 0.)
-            acc_new = rho * acc + (1 - rho) * grad ** 2
-            gradient_scaling = tensor.sqrt(acc_new + epsilon)
-            grad = grad / gradient_scaling
-            updates.append((acc, acc_new))
+            # acc = theano.shared(param.get_value() * 0.)
+            # acc_new = rho * acc + (1 - rho) * grad ** 2
+            # gradient_scaling = tensor.sqrt(acc_new + epsilon)
+            # grad = grad / gradient_scaling
+            # updates.append((acc, acc_new))
             updates.append((param, param - learning_rate * grad))
         return updates
