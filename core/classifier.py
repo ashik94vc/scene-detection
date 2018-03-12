@@ -48,7 +48,6 @@ class Classifier(object):
         self.params = self.model.parameters()
         saveModel(self.params)
 
-
     def test(self, parameters = None):
         Y_predict = list()
         if parameters != None:
