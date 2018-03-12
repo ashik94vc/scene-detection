@@ -10,7 +10,7 @@ def disableConsoleOutput():
     sys.stdout = open(os.devnull, 'w')
 
 def __getFilePath(iternumber,date):
-    filename = 'models/'+date_today[1]+'_'+date_today[0]+'_'+date_today[2]+'_'+str(iternumber)+'.model'
+    filename = 'models/'+date[1]+'_'+date[0]+'_'+date[2]+'_'+str(iternumber)+'.model'
     directory = os.path.dirname(filename)
     if not os.path.exists(directory):
         os.mkdir(directory)
@@ -28,6 +28,6 @@ def saveModel(parameters):
 
 def loadModel(filepath):
     fptr = open(filepath,'rb')
-    param = pickle.load(parameters,fptr)
+    param = pickle.load(fptr)
     fptr.close()
     return param

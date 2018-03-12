@@ -59,6 +59,8 @@ class Model(object):
 
         updates = self.RMSprop(cost,parameters)
 
+        params = {"W1": W1, "b1": b1, "W2": W2, "b2": b2, "W3": W3, "b3": b3, "W5": W5, "W6": W6}
+        self.parameters = theano.function([],params)
         self.train = theano.function([X, Y], cost,updates=updates)
         self.predict = theano.function([X],layer_6_output)
 
