@@ -44,8 +44,8 @@ class Classifier(object):
             cost = self.model.train([self.train_x[i]],[self.train_y[i]])
             if i%100 == 0:
                 print(str(i)+" datas trained")
-        self.params = parameters
-        saveModel(parameters)
+        self.params = self.model.parameters()
+        saveModel(self.params)
 
 
     def test(self, parameters = None):

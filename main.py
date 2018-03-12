@@ -68,12 +68,10 @@ if len(sys.argv) < 2:
     classifier.train()
 else:
     parameters = loadModel(sys.argv[1])
-    print(type(parameters))
-    print(parameters.shape)
     classifier.model = Model(parameters)
-if sys.argv[2] != None:
+if len(sys.argv) > 2:
     predict_input = (np.asarray(Image.open(open(sys.argv[2], 'rb')),dtype="float64")/256).transpose(2,0,1)
-    y_output = Model(parameters)
+    y_output = Model(parameters).predict([predict_input])
     y_output_scalar = np.asscalar(y_output)
     print(y_output_scalar)
     string_output = "I am {:.3f}% sure that it's a ".format(confidence(y_output_scalar))
