@@ -35,15 +35,15 @@ class Model(object):
 
         layer_1 = conv2d(X,W1)
         layer_1_pool = pool_2d(layer_1,(2,2),ignore_border=True)
-        layer_1_output = relu(layer_1_pool+b1.dimshuffle('x', 0, 'x', 'x'))
+        layer_1_output = tensor.tanh(layer_1_pool+b1.dimshuffle('x', 0, 'x', 'x'))
 
         layer_2 = conv2d(layer_1_output, W2)
         layer_2_pool = pool_2d(layer_2,(2,2),ignore_border=True)
-        layer_2_output = relu(layer_2_pool+b2.dimshuffle('x', 0, 'x', 'x'))
+        layer_2_output = tensor.tanh(layer_2_pool+b2.dimshuffle('x', 0, 'x', 'x'))
 
         layer_3 = conv2d(layer_2_output, W3)
         layer_3_pool = pool_2d(layer_3,(2,2),ignore_border=True)
-        layer_3_output = relu(layer_3_pool+b3.dimshuffle('x', 0, 'x', 'x'))
+        layer_3_output = tensor.tanh(layer_3_pool+b3.dimshuffle('x', 0, 'x', 'x'))
 
         layer_4 = layer_3_output.flatten(2)
 

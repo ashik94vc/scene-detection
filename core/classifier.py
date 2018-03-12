@@ -42,6 +42,7 @@ class Classifier(object):
         parameters = None
         for i in range(len(self.train_x)):
             cost = self.model.train([self.train_x[i]],[self.train_y[i]])
+            print(cost)
             if i%100 == 0:
                 print(str(i)+" datas trained")
         self.params = parameters
