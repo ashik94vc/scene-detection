@@ -40,24 +40,23 @@ class Classifier(object):
 
     def train(self):
         parameters = None
-        for i in range(len(self.train_x)):
-            cost = self.model.train([self.train_x[i]],[self.train_y[i]])
-            if i%100 == 0:
-                print(str(i)+" datas trained")
-                print(cost)
+        num_epoch = 4
+        while num_epoch > 0:
+            for i in range(len(self.train_x)):
+                cost = self.model.train([self.train_x[i]],[self.train_y[i]])
+                if i%100 == 0:
+                    print(str(i)+" datas trained")
+                    print(cost)
+            print("Epoch "+str(4-num_epoch)+" done")
+            num_epoch -= 1
         self.params = self.model.parameters()
         saveModel(self.params)
 
     def test(self, parameters = None):
-        Y_predict = list()
-        if parameters != None:
-            self.params = parameters
-        for x in self.test_x:
-            y_predict = self.model.predict([x])
-            Y_predict.append(np.asscalar(y_predict))
-        Y_predict = np.asarray(Y_predict)
-        error = self.error(self.test_y,Y_predict)
+        error = self.model.test(self.train_x, self.train_y)
         return error
+        # error = self.error(self.test_y,Y_predict)
+        # return error
 
     def cost_function(self, y_predict, y_label):
         return y_label*np.log(y_predict) + (1-y_label)*np.log(1-y_predict)
