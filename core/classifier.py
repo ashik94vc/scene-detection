@@ -46,8 +46,9 @@ class Classifier(object):
                 cost = self.model.train([self.train_x[i]],[self.train_y[i]])
                 if i%100 == 0:
                     print(str(i)+" datas trained")
-                    print(cost)
-            print("Epoch "+str(4-num_epoch)+" done")
+            error = self.model.test(self.test_x,self.test_y)
+            print("Epoch "+str(5-num_epoch)+" done")
+            print("Error: "+str(error))
             num_epoch -= 1
         self.params = self.model.parameters()
         saveModel(self.params)

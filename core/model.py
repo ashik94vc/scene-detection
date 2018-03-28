@@ -12,15 +12,15 @@ class Model(object):
         Y = tensor.lvector()
         self.params = parameters
         if parameters == None:
-            W1 = theano.shared(np.random.randn(6,3,9,9))
-            b1 = theano.shared(np.zeros(6,).astype(theano.config.floatX))
-            W2 = theano.shared(np.random.randn(32,6,9,9))
-            b2 = theano.shared(np.zeros(32,).astype(theano.config.floatX))
-            W3 = theano.shared(np.random.randn(64,32,9,9))
-            b3 = theano.shared(np.zeros(64,).astype(theano.config.floatX))
-            W5 = theano.shared(np.random.randn(7744,84))
+            W1 = theano.shared(np.random.randn(32,3,5,5))
+            b1 = theano.shared(np.zeros(32,).astype(theano.config.floatX))
+            W2 = theano.shared(np.random.randn(64,32,5,5))
+            b2 = theano.shared(np.zeros(64,).astype(theano.config.floatX))
+            W3 = theano.shared(np.random.randn(128,64,5,5))
+            b3 = theano.shared(np.zeros(128,).astype(theano.config.floatX))
+            W5 = theano.shared(np.random.randn(28800,1084))
             # b5 = theano.shared(np.zeros(64*9*9,))
-            W6 = theano.shared(np.random.randn(84,2))
+            W6 = theano.shared(np.random.randn(1084,2))
             b6 = theano.shared(np.zeros(2,))
         else:
             W1 = theano.shared(parameters["W1"])
