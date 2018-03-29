@@ -61,7 +61,7 @@ class Model(object):
         # Negative Log Likelihood
         cost = -tensor.mean(tensor.log(layer_6_output)[tensor.arange(Y.shape[0]), Y])
 
-        error = tensor.mean(tensor.neq(layer_6_output, Y))
+        error = tensor.mean(tensor.neq(output, Y))
 
         parameters = [W1,b1,W2,b2,W3,b3,W5,W6,b6]
 
