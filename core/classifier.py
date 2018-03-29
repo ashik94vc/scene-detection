@@ -2,8 +2,10 @@ import os
 from core.model import Model
 import theano
 from theano import tensor as T
+from scipy import ndimage
 from scipy.misc import toimage
 from scipy.optimize import fmin_cg as conjugate_gradient
+from keras.preprocessing.image import ImageDataGenerator
 from core.lib import saveModel
 import numpy as np
 import pickle
@@ -11,6 +13,7 @@ import pickle
 class Classifier(object):
 
     def __init__(self, dataset):
+        self.imagegen = ImageDataGenerator(shear_range=0.2,zoom_range=0.2,horizontal_flip=True)
         self.dataset = dataset
         self.train_x,self.train_y = dataset[0]
         self.test_x,self.test_y = dataset[1]
@@ -40,14 +43,20 @@ class Classifier(object):
 
     def train(self):
         parameters = None
-        num_epoch = 4
+        num_epoch = 1
         while num_epoch > 0:
-            for i in range(len(self.train_x)):
-                cost = self.model.train([self.train_x[i]],[self.train_y[i]])
-                if i%100 == 0:
-                    print(str(i)+" datas trained")
+            mini_batch_iter = self.imagegen.flow(self.train_x,self.train_y,batch_size=16)
+            current_data = 1
+            for train_batch in mini_batch_iter:
+                # sh = self.model.shape_dim(train_batch[0],train_batch[1])
+                cost = self.model.train(train_batch[0],train_batch[1])
+                if current_data%100 == 0:
+                    print(str(current_data*16)+" datas trained")
+                if current_data == len(self.train_x):
+                    break
+                current_data += 1
             error = self.model.test(self.test_x,self.test_y)
-            print("Epoch "+str(5-num_epoch)+" done")
+            print("Epoch "+str(2-num_epoch)+" done")
             print("Error: "+str(error))
             num_epoch -= 1
         self.params = self.model.parameters()

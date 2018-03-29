@@ -12,8 +12,6 @@ from core.lib import loadModel
 from core.classifier import Classifier
 from core.model import Model
 
-
-
 def quantizer(value):
     if value > 0.5:
         return 1
@@ -38,7 +36,7 @@ for filename in os.listdir('dataset/cars'):
         file_data = Image.open(open(os.path.join('dataset/cars',filename),'rb'))
         img = np.asarray(file_data, dtype='float64')/256
         img = img.transpose(2,0,1)
-        dataset_temp.append([img,0])
+        dataset_temp.append([img,1])
 #build data for not cars_
 regex = re.compile("^notcars_[0-9]{5}\.jpg$")
 nocars_list = list()
@@ -47,7 +45,7 @@ for filename in os.listdir('dataset/not_cars'):
         file_data = Image.open(open(os.path.join('dataset/not_cars',filename),'rb'))
         img = np.asarray(file_data, dtype='float64')/256
         img = img.transpose(2,0,1)
-        dataset_temp.append([img,1])
+        dataset_temp.append([img,0])
 dataset_temp = np.asarray(dataset_temp)
 np.random.shuffle(dataset_temp)
 dataset = []
