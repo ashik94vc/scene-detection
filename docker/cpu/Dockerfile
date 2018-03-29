@@ -4,28 +4,28 @@ MAINTAINER Ashik Vetrivelu <vcashik@gmail.com>
 RUN apt-get update
 RUN apt-get install --no-install-recommends --no-install-suggests -y curl
 
-RUN apt-get install --no-install-recommends -y python-dev \
+RUN apt-get install --no-install-recommends -y python3-dev \
    git \
    wget \
    liblapack-dev \
    libopenblas-dev \
-   python-numpy \
+   python3-numpy \
    build-essential \
    sudo \
    cmake \
    clang-3.6 \
    clang-format-3.6 \
-   python-pip \
-   python-nose \
-   python-wheel \
-   python-setuptools \
-   python-scipy
+   python3-pip \
+   python3-nose \
+   python3-wheel \
+   python3-setuptools \
+   python3-scipy
 
-RUN pip install numpy
+RUN pip3 install --upgrade pip
 
-RUN pip install theano
+RUN pip3 install --upgrade numpy
 
-RUN pip install Cython
+RUN pip3 install --upgrade Cython
 
 RUN cd /root && wget http://www.cmake.org/files/v3.8/cmake-3.8.1.tar.gz && \
   tar -xzf cmake-3.8.1.tar.gz && cd cmake-3.8.1 && \
@@ -40,14 +40,14 @@ RUN cd /root && git clone https://github.com/Theano/libgpuarray.git && cd libgpu
    make install
 
 RUN cd /root/libgpuarray && \
-   python setup.py build_ext -L /usr/lib -I /usr/include && \
-   python setup.py install
+   python3 setup.py build_ext -L /usr/lib -I /usr/include && \
+   python3 setup.py install
 
-RUN pip install --upgrade pip
-RUN pip install --upgrade six
-RUN pip install --upgrade --no-deps git+git://github.com/Theano/Theano.git
-RUN pip install --upgrade keras
-
+RUN pip3 install --upgrade pip
+RUN pip3 install --upgrade six
+RUN pip3 install --upgrade --no-deps git+git://github.com/Theano/Theano.git
+RUN pip3 install --upgrade keras
+RUN pip3 install --upgrade pillow
 
 WORKDIR /scene_detection
 
@@ -55,7 +55,7 @@ RUN mkdir -p /root/.keras
 
 RUN mkdir -p models
 
-ADD keras.json /root/.keras/
+ADD docker/keras.json /root/.keras/
 
 ADD core core/
 ADD dataset dataset/
@@ -64,4 +64,10 @@ ADD test/ test/
 
 ADD main.py .
 
-ENTRYPOINT ["python","main.py"]
+ENV LD_LIBRARY_PATH /usr/lib:$LD_LIBRARY_PATH
+ENV BLAS /usr/lib/libopenblas.a
+ENV ATLAS /usr/lib/libopenblas.a
+
+RUN echo "[blas]\nldflags = -lopenblas\n" >> /root/.theanorc
+
+ENTRYPOINT ["python3","main.py"]
