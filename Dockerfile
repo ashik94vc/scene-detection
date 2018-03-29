@@ -53,6 +53,8 @@ WORKDIR /scene_detection
 
 RUN mkdir -p /root/.keras
 
+RUN mkdir -p models
+
 ADD keras.json /root/.keras/
 
 ADD core core/
