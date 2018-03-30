@@ -1,8 +1,11 @@
-FROM ubuntu:latest
+FROM ubuntu:16.04
 MAINTAINER Ashik Vetrivelu <vcashik@gmail.com>
 
 RUN apt-get update
 RUN apt-get install --no-install-recommends --no-install-suggests -y curl
+
+ENV NVIDIA_RUN http://us.download.nvidia.com/tesla/390.46/NVIDIA-Linux-x86_64-390.46.run
+ENV CUDA_RUN https://developer.nvidia.com/compute/cuda/9.1/Prod/local_installers/cuda_9.1.85_387.26_linux
 
 RUN apt-get install --no-install-recommends -y python3-dev \
    git \
@@ -19,6 +22,7 @@ RUN apt-get install --no-install-recommends -y python3-dev \
    python3-nose \
    python3-wheel \
    python3-setuptools \
+   kmod \
    python3-scipy
 
 RUN pip3 install --upgrade pip
@@ -32,6 +36,24 @@ RUN cd /root && wget http://www.cmake.org/files/v3.8/cmake-3.8.1.tar.gz && \
   ./configure && \
   make -j "$(nproc)" && \
   make install
+
+RUN cd /root && wget $CUDA_RUN && \
+   chmod +x cuda_9.1.85_387.26_linux && \
+   mkdir -p /root/nvidia_installers && \
+   ./cuda_9.1.85_387.26_linux -extract=`pwd`/nvidia_installers && \
+   cd /root/nvidia_installers && \
+   ./NVIDIA-Linux-x86_64-387.26.run -s -N --no-kernel-module
+
+RUN cd /root/nvidia_installers && \
+   ./cuda-linux.9.1.85-23083092.run -noprompt
+
+ENV LIBRARY_PATH $LD_LIBRARY_PATH:/usr/local/cuda-9.1/lib64
+ENV PATH $PATH:/usr/local/cuda-9.1/bin
+
+RUN cd /root/nvidia_installers && \
+   ./cuda-samples.9.1.85-23083092-linux.run -noprompt -cudaprefix=/usr/local/cuda-9.1 && \
+   cd /usr/local/cuda/samples/1_Utilities/deviceQuery && \
+   make
 
 RUN cd /root && git clone https://github.com/Theano/libgpuarray.git && cd libgpuarray && \
    mkdir Build && cd Build && \
@@ -55,7 +77,7 @@ RUN mkdir -p /root/.keras
 
 RUN mkdir -p models
 
-ADD docker/cpu/keras.json /root/.keras/
+ADD docker/gpu/keras.json /root/.keras/
 
 ADD core core/
 ADD dataset dataset/
@@ -68,6 +90,6 @@ ENV LD_LIBRARY_PATH /usr/lib:$LD_LIBRARY_PATH
 ENV BLAS /usr/lib/libopenblas.a
 ENV ATLAS /usr/lib/libopenblas.a
 
-RUN echo "[blas]\nldflags = -lopenblas\n" >> /root/.theanorc
+RUN echo "[global]\ndevice=cuda\nfloatX=float32\noptimizer_including=cudnn\n[blas]\nldflags = -lopenblas\n" >> /root/.theanorc
 
 ENTRYPOINT ["python3","main.py"]
