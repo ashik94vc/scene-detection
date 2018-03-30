@@ -10,7 +10,7 @@ from scipy.misc import toimage
 class Model(object):
     def __init__(self,parameters=None):
         X = tensor.tensor4()
-        Y = tensor.lvector()
+        Y = tensor.ivector()
         self.params = parameters
         if parameters == None:
             W1 = theano.shared(np.random.randn(32,3,5,5)*0.01)
@@ -59,7 +59,7 @@ class Model(object):
         # cost = ((Y-layer_6_output)**2).sum()
 
         # Negative Log Likelihood
-        cost = -tensor.mean(tensor.log(layer_6_output)[tensor.arange(Y.shape[0]), Y])
+        cost = -tensor.mean(tensor.log(layer_6_output)[tensor.arange(Y.shape[0]), Y], dtype=theano.config.floatX)
 
         error = tensor.mean(tensor.neq(output, Y))
 

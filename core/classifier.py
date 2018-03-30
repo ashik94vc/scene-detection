@@ -49,7 +49,8 @@ class Classifier(object):
             current_data = 1
             for train_batch in mini_batch_iter:
                 # sh = self.model.shape_dim(train_batch[0],train_batch[1])
-                cost = self.model.train(train_batch[0],train_batch[1])
+                a,b,c = self.model.train(train_batch[0],train_batch[1])
+                print(a,b,c)
                 if current_data%100 == 0:
                     print(str(current_data*16)+" datas trained")
                 if current_data == len(self.train_x):

@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM nvidia/cuda:9.1-cudnn7-devel-ubuntu16.04
 MAINTAINER Ashik Vetrivelu <vcashik@gmail.com>
 
 RUN apt-get update
@@ -37,23 +37,25 @@ RUN cd /root && wget http://www.cmake.org/files/v3.8/cmake-3.8.1.tar.gz && \
   make -j "$(nproc)" && \
   make install
 
-RUN cd /root && wget $CUDA_RUN && \
-   chmod +x cuda_9.1.85_387.26_linux && \
-   mkdir -p /root/nvidia_installers && \
-   ./cuda_9.1.85_387.26_linux -extract=`pwd`/nvidia_installers && \
-   cd /root/nvidia_installers && \
-   ./NVIDIA-Linux-x86_64-387.26.run -s -N --no-kernel-module
+ENV CUDA_ROOT /usr/local/cuda/bin
 
-RUN cd /root/nvidia_installers && \
-   ./cuda-linux.9.1.85-23083092.run -noprompt
-
-ENV LIBRARY_PATH $LD_LIBRARY_PATH:/usr/local/cuda-9.1/lib64
-ENV PATH $PATH:/usr/local/cuda-9.1/bin
-
-RUN cd /root/nvidia_installers && \
-   ./cuda-samples.9.1.85-23083092-linux.run -noprompt -cudaprefix=/usr/local/cuda-9.1 && \
-   cd /usr/local/cuda/samples/1_Utilities/deviceQuery && \
-   make
+# RUN cd /root && wget $CUDA_RUN && \
+#    chmod +x cuda_9.1.85_387.26_linux && \
+#    mkdir -p /root/nvidia_installers && \
+#    ./cuda_9.1.85_387.26_linux -extract=`pwd`/nvidia_installers && \
+#    cd /root/nvidia_installers && \
+#    ./NVIDIA_zLinux-x86_64-387.26.run -s -N --no-kernel-module
+#
+# RUN cd /root/nvidia_installers && \
+#    ./cuda-linux.9.1.85-23083092.run -noprompt
+#
+# ENV LIBRARY_PATH $LD_LIBRARY_PATH:/usr/local/cuda-9.1/lib64
+# ENV PATH $PATH:/usr/local/cuda-9.1/bin
+#
+# RUN cd /root/nvidia_installers && \
+#    ./cuda-samples.9.1.85-23083092-linux.run -noprompt -cudaprefix=/usr/local/cuda-9.1 && \
+#    cd /usr/local/cuda/samples/1_Utilities/deviceQuery && \
+#    make
 
 RUN cd /root && git clone https://github.com/Theano/libgpuarray.git && cd libgpuarray && \
    mkdir Build && cd Build && \
@@ -90,6 +92,11 @@ ENV LD_LIBRARY_PATH /usr/lib:$LD_LIBRARY_PATH
 ENV BLAS /usr/lib/libopenblas.a
 ENV ATLAS /usr/lib/libopenblas.a
 
-RUN echo "[global]\ndevice=cuda\nfloatX=float32\noptimizer_including=cudnn\n[blas]\nldflags = -lopenblas\n" >> /root/.theanorc
+RUN rm -rf /tmp/*
+
+RUN echo "[global]\ndevice=cuda0\nfloatX=float32\nintX=int32\noptimizer_including=cudnn\n
+          [cuda]\nroot=/usr/local/cuda-9.1/bin\n
+          [blas]\nldflags = -lopenblas\n
+          [dnn]\nenable=True\nlibrary_path=/usr/local/cuda-9.1/lib64\ninclude_path=/usr/local/cuda-9.1/include" >> /root/.theanorc
 
 ENTRYPOINT ["python3","main.py"]
