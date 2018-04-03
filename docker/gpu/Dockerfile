@@ -94,9 +94,9 @@ ENV ATLAS /usr/lib/libopenblas.a
 
 RUN rm -rf /tmp/*
 
-RUN echo "[global]\ndevice=cuda0\nfloatX=float32\nintX=int32\noptimizer_including=cudnn\n
-          [cuda]\nroot=/usr/local/cuda-9.1/bin\n
-          [blas]\nldflags = -lopenblas\n
-          [dnn]\nenable=True\nlibrary_path=/usr/local/cuda-9.1/lib64\ninclude_path=/usr/local/cuda-9.1/include" >> /root/.theanorc
+RUN echo '[global]\ndevice=cuda0\nfloatX=float32\nintX=int32\noptimizer_including=cudnn\n\
+[cuda]\nroot=/usr/local/cuda-9.1/include\n\
+[blas]\nldflags = -lopenblas\n\
+[dnn]\nenable=True\nlibrary_path=/usr/local/cuda-9.1/lib64\ninclude_path=/usr/local/cuda-9.1/include' >> /root/.theanorc
 
 ENTRYPOINT ["python3","main.py"]

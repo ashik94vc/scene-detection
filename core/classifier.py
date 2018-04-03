@@ -49,14 +49,13 @@ class Classifier(object):
             current_data = 1
             for train_batch in mini_batch_iter:
                 # sh = self.model.shape_dim(train_batch[0],train_batch[1])
-                a,b,c = self.model.train(train_batch[0],train_batch[1])
-                print(a,b,c)
+                cost = self.model.train(train_batch[0],train_batch[1])
                 if current_data%100 == 0:
                     print(str(current_data*16)+" datas trained")
                 if current_data == len(self.train_x):
                     break
                 current_data += 1
-            error = self.model.test(self.test_x,self.test_y)
+            error = self.model.test(self.test_x.astype(theano.config.floatX),self.test_y)
             print("Epoch "+str(2-num_epoch)+" done")
             print("Error: "+str(error))
             num_epoch -= 1
@@ -64,7 +63,7 @@ class Classifier(object):
         saveModel(self.params)
 
     def test(self, parameters = None):
-        error = self.model.test(self.train_x, self.train_y)
+        error = self.model.test(self.test_x.astype(theano.config.floatX), self.test_y)
         return error
         # error = self.error(self.test_y,Y_predict)
         # return error

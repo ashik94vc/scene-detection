@@ -10,19 +10,19 @@ from scipy.misc import toimage
 class Model(object):
     def __init__(self,parameters=None):
         X = tensor.tensor4()
-        Y = tensor.ivector()
+        Y = tensor.lvector()
         self.params = parameters
         if parameters == None:
-            W1 = theano.shared(np.random.randn(32,3,5,5)*0.01)
+            W1 = theano.shared(np.random.randn(32,3,5,5).astype(theano.config.floatX)*0.01)
             b1 = theano.shared(np.zeros(32,).astype(theano.config.floatX))
-            W2 = theano.shared(np.random.randn(64,32,5,5)*0.01)
+            W2 = theano.shared(np.random.randn(64,32,5,5).astype(theano.config.floatX)*0.01)
             b2 = theano.shared(np.zeros(64,).astype(theano.config.floatX))
-            W3 = theano.shared(np.random.randn(128,64,5,5)*0.01)
+            W3 = theano.shared(np.random.randn(128,64,5,5).astype(theano.config.floatX)*0.01)
             b3 = theano.shared(np.zeros(128,).astype(theano.config.floatX))
-            W5 = theano.shared(np.random.randn(28800,1084)*0.01)
+            W5 = theano.shared(np.random.randn(28800,1084).astype(theano.config.floatX)*0.01)
             # b5 = theano.shared(np.zeros(64*9*9,))
-            W6 = theano.shared(np.random.randn(1084,2)*0.01)
-            b6 = theano.shared(np.zeros(2,))
+            W6 = theano.shared(np.random.randn(1084,2).astype(theano.config.floatX)*0.01)
+            b6 = theano.shared(np.zeros(2,).astype(theano.config.floatX))
         else:
             W1 = theano.shared(parameters["W1"])
             b1 = theano.shared(parameters["b1"])
