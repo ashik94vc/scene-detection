@@ -13,7 +13,7 @@ import pickle
 class Classifier(object):
 
     def __init__(self, dataset):
-        self.imagegen = ImageDataGenerator(shear_range=0.2,zoom_range=0.2,horizontal_flip=True)
+        # self.imagegen = ImageDataGenerator(shear_range=0.2,zoom_range=0.2,horizontal_flip=True)
         self.dataset = dataset
         self.train_x,self.train_y = dataset[0]
         self.test_x,self.test_y = dataset[1]
@@ -45,9 +45,12 @@ class Classifier(object):
         parameters = None
         num_epoch = 1
         while num_epoch > 0:
-            mini_batch_iter = self.imagegen.flow(self.train_x,self.train_y,batch_size=16)
-            current_data = 1
-            for train_batch in mini_batch_iter:
+            # mini_batch_iter = self.imagegen.flow(self.train_x,self.train_y,batch_size=16)
+
+            train_batch_inputs = np.array_split(self.train_x, 16)
+            train_batch_labels = np.array_split(self.train_y, 16)
+            train_batch_list = zip(train_batch_inputs,train_batch_labels)
+            for train_batch in train_batch_list:
                 # sh = self.model.shape_dim(train_batch[0],train_batch[1])
                 cost = self.model.train(train_batch[0],train_batch[1])
                 if current_data%100 == 0:
@@ -55,9 +58,9 @@ class Classifier(object):
                 if current_data == len(self.train_x):
                     break
                 current_data += 1
-            error = self.model.test(self.test_x.astype(theano.config.floatX),self.test_y)
-            print("Epoch "+str(2-num_epoch)+" done")
-            print("Error: "+str(error))
+            # error = self.model.test(self.test_x.astype(theano.config.floatX),self.test_y)
+            # print("Epoch "+str(2-num_epoch)+" done")
+            # print("Error: "+str(error))
             num_epoch -= 1
         self.params = self.model.parameters()
         saveModel(self.params)
