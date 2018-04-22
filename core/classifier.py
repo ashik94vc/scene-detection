@@ -44,16 +44,14 @@ class Classifier(object):
     def train(self):
         parameters = None
         num_epoch = 1
+        current_data = 1
         while num_epoch > 0:
             # mini_batch_iter = self.imagegen.flow(self.train_x,self.train_y,batch_size=16)
-
-            train_batch_inputs = np.array_split(self.train_x, 16)
-            train_batch_labels = np.array_split(self.train_y, 16)
-            train_batch_list = zip(train_batch_inputs,train_batch_labels)
+            train_batch_list = zip(self.train_x,self.train_y)
             for train_batch in train_batch_list:
                 # sh = self.model.shape_dim(train_batch[0],train_batch[1])
                 cost = self.model.train(train_batch[0],train_batch[1])
-                if current_data%100 == 0:
+                if current_data%10 == 0:
                     print(str(current_data*16)+" datas trained")
                 if current_data == len(self.train_x):
                     break

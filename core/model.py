@@ -10,7 +10,7 @@ from scipy.misc import toimage
 class Model(object):
     def __init__(self,parameters=None):
         X = tensor.tensor4()
-        Y = tensor.lvector()
+        Y = tensor.lmatrix()
         self.params = parameters
         if parameters == None:
             W1 = theano.shared(np.random.randn(32,3,5,5).astype(theano.config.floatX)*0.01)
@@ -19,10 +19,10 @@ class Model(object):
             b2 = theano.shared(np.zeros(64,).astype(theano.config.floatX))
             W3 = theano.shared(np.random.randn(128,64,5,5).astype(theano.config.floatX)*0.01)
             b3 = theano.shared(np.zeros(128,).astype(theano.config.floatX))
-            W5 = theano.shared(np.random.randn(28800,1084).astype(theano.config.floatX)*0.01)
+            W5 = theano.shared(np.random.randn(2048,1084).astype(theano.config.floatX)*0.01)
             # b5 = theano.shared(np.zeros(64*9*9,))
-            W6 = theano.shared(np.random.randn(1084,2).astype(theano.config.floatX)*0.01)
-            b6 = theano.shared(np.zeros(2,).astype(theano.config.floatX))
+            W6 = theano.shared(np.random.randn(1084,200).astype(theano.config.floatX)*0.01)
+            b6 = theano.shared(np.zeros(200,).astype(theano.config.floatX))
         else:
             W1 = theano.shared(parameters["W1"])
             b1 = theano.shared(parameters["b1"])
@@ -54,14 +54,17 @@ class Model(object):
         layer_6 = tensor.dot(layer_5_output, W6) + b6
 
         #softmax instead of sigmoid.
-        layer_6_output = softmax(layer_6) + 0.0000001
-        output = tensor.argmax(layer_6_output,axis=1)
+        inter_output = layer_6 - layer_6.max(1,keepdims=True)
+        log_softmax_output = inter_output - tensor.log(tensor.sum(tensor.exp(inter_output),axis=1,keepdims=True))
+        log_softmax_output = tensor.exp(log_softmax_output)
+        cross_entropy = -tensor.sum(Y*log_softmax_output,axis=1)
+        cost = cross_entropy.mean()
         # cost = ((Y-layer_6_output)**2).sum()
 
         # Negative Log Likelihood
-        cost = -tensor.mean(tensor.log(layer_6_output)[tensor.arange(Y.shape[0]), Y], dtype=theano.config.floatX)
-
-        error = tensor.mean(tensor.neq(output, Y))
+        # cost = -tensor.mean(tensor.log(layer_6_output)[tensor.arange(Y.shape[0]), Y], dtype=theano.config.floatX)
+        #
+        error = tensor.mean(tensor.neq(log_softmax_output, Y))
 
         parameters = [W1,b1,W2,b2,W3,b3,W5,W6,b6]
 
@@ -72,7 +75,7 @@ class Model(object):
         mode = NanGuardMode(nan_is_error=True, inf_is_error=True, big_is_error=True).excluding('local_elemwise_fusion','inplace')
         self.train = theano.function([X, Y], cost,updates=updates, mode=mode)
         self.test = theano.function([X, Y], error)
-        self.predict = theano.function([X],output)
+        self.predict = theano.function([X],log_softmax_output)
 
     def GradientDescent(self, cost, parameters, learning_rate=0.045, rho=0.8, epsilon=1e-6):
         gradients = tensor.grad(cost, parameters)

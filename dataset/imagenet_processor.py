@@ -1,4 +1,5 @@
 from keras.preprocessing.image import ImageDataGenerator
+import numpy as np
 
 class ImageNet(object):
 
@@ -9,20 +10,30 @@ class ImageNet(object):
         train_generator = train_data_gen.flow_from_directory(
             'dataset/imagenet/train',
             target_size=(64, 64),
-            batch_size=160000,
+            batch_size=16,
             class_mode='categorical'
         )
-
+        train_size = 216000
+        test_size = 24000
+        self.train_inputs = []
+        self.train_labels = []
+        self.test_inputs = None
+        self.test_labels = None
         # test_generator = test_data_gen.flow_from_directory(
         #     'dataset/imagenet/val',
         #     target_size=(64,64),
         #     batch_size=240000,
         #     class_mode='categorical'
         # )
-
-        inputs, labels = train_generator.next()
-        self.train_inputs = inputs[:144000]
-        self.train_labels = labels[:144000]
-        self.test_inputs = inputs[144000:]
-        self.test_labels = inputs[144000:]
-        # self.test_inputs, self.test_labels = test_generator.next()
+        for i in range(int(train_size/batch_size)):
+            inputs, labels = train_generator.next()
+            self.train_inputs.append(inputs)
+            self.train_labels.append(labels.astype(int))
+        for i in range(int(test_size/batch_size)):
+            inputs, labels = train_generator.next()
+            if self.test_inputs is None:
+                self.test_inputs = inputs
+                self.test_labels = labels.astype(int)
+            else:
+                self.test_inputs = np.append(self.test_inputs, inputs, axis=0)
+                self.test_labels = np.append(self.test_labels, labels.astype(int), axis=0)

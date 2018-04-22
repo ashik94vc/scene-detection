@@ -70,7 +70,6 @@ test_inputs, test_labels = imageNet.test_inputs, imageNet.test_labels
 dataset.append((train_inputs, train_labels))
 dataset.append((test_inputs, test_labels))
 
-print(train_inputs.shape, train_labels.shape)
 classifier = Classifier(dataset)
 parameters = None
 
