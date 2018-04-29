@@ -12,11 +12,13 @@ import pickle
 
 class Classifier(object):
 
-    def __init__(self, dataset):
-        # self.imagegen = ImageDataGenerator(shear_range=0.2,zoom_range=0.2,horizontal_flip=True)
+    def __init__(self, dataset=None):
+        self.imagegen = ImageDataGenerator(shear_range=0.2,zoom_range=0.2,horizontal_flip=True)
         self.dataset = dataset
-        self.train_x,self.train_y = dataset[0]
-        self.test_x,self.test_y = dataset[1]
+        self.train_x = dataset["train"]["data"]
+        self.train_y = dataset["train"]["target"]
+        self.validation_x = dataset["val"]["data"]
+        self.validation_y = dataset["val"]["target"]
         self.learning_rate = 0.16
         self.eps = 2e-9
         self.params = {}
@@ -46,10 +48,9 @@ class Classifier(object):
         num_epoch = 1
         current_data = 1
         while num_epoch > 0:
-            # mini_batch_iter = self.imagegen.flow(self.train_x,self.train_y,batch_size=16)
-            train_batch_list = zip(self.train_x,self.train_y)
-            for train_batch in train_batch_list:
-                # sh = self.model.shape_dim(train_batch[0],train_batch[1])
+            mini_batch_iter = self.imagegen.flow(self.train_x,self.train_y,batch_size=16)
+            # train_batch_list = zip(self.train_x,self.train_y)
+            for train_batch in mini_batch_iter:
                 cost = self.model.train(train_batch[0],train_batch[1])
                 if current_data%10 == 0:
                     print(str(current_data*16)+" datas trained")
@@ -64,8 +65,7 @@ class Classifier(object):
         saveModel(self.params)
 
     def test(self, parameters = None):
-        error = self.model.test(self.test_x.astype(theano.config.floatX), self.test_y)
-        return error
+        
         # error = self.error(self.test_y,Y_predict)
         # return error
 

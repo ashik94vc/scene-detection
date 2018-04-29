@@ -1,6 +1,7 @@
 import sys
 import os
 import pickle
+import deepdish as dd
 from datetime import date
 
 def enableConsoleOutput():
@@ -25,6 +26,10 @@ def saveModel(parameters):
     fptr = open(filename,'wb')
     pickle.dump(parameters,fptr)
     fptr.close()
+
+def loadData(filepath):
+    data = dd.io.load(filepath)
+    return data
 
 def loadModel(filepath):
     fptr = open(filepath,'rb')

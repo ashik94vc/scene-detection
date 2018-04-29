@@ -72,6 +72,7 @@ RUN pip3 install --upgrade six
 RUN pip3 install --upgrade --no-deps git+git://github.com/Theano/Theano.git
 RUN pip3 install --upgrade keras
 RUN pip3 install --upgrade pillow
+RUN pip3 install deepdish
 
 WORKDIR /scene_detection
 
@@ -82,7 +83,7 @@ RUN mkdir -p models
 ADD docker/gpu/keras.json /root/.keras/
 
 ADD core core/
-ADD dataset dataset/
+ADD dataset/imagenet.h5 dataset/imagenet.h5
 
 ADD test/ test/
 
@@ -94,7 +95,7 @@ ENV ATLAS /usr/lib/libopenblas.a
 
 RUN rm -rf /tmp/*
 
-RUN echo '[global]\ndevice=cuda0\nfloatX=float32\nintX=int32\noptimizer_including=cudnn\n\
+RUN echo '[global]\ndevice=cuda0\nfloatX=float32\nwintX=int32\noptimizer_including=cudnn\n\
 [cuda]\nroot=/usr/local/cuda-9.1/include\n\
 [blas]\nldflags = -lopenblas\n\
 [dnn]\nenable=True\nlibrary_path=/usr/local/cuda-9.1/lib64\ninclude_path=/usr/local/cuda-9.1/include' >> /root/.theanorc

@@ -1,6 +1,6 @@
 import numpy as np
 from PIL import Image
-import six.moves.cPickle as pickle
+import deepdish as dd
 
 wnids = list(map(lambda x: x.strip(), open('wnids.txt').readlines()))
 
@@ -30,4 +30,4 @@ for i, line in enumerate(map(lambda s: s.strip(), open('val/val_annotations.txt'
     data['val']['target'][i][wnids.index(wnid)] = 1
 
 print("Dump to train.pkl...")
-pickle.dump(data, open('tiny_imagenet.pkl', 'wb', -1))
+dd.io.save('../imagenet.h5', data)
